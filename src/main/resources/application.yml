@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: manus
+  profiles:
+    active: local
+  datasource:
+    url: jdbc:postgresql://localhost:5432/ragdb
+    username:
+    password:
+    driver-class-name: org.postgresql.Driver
+langchain4j:
+  embedding-model:
+    open-ai:
+      base-url: http://127.0.0.1:8000/v1
+      model-name: shibing624/text2vec-base-chinese
+  open-ai:
+    chat-model:
+      api-key:
+      base-url:
+      model-name:
+
+
