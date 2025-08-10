@@ -24,7 +24,6 @@ public class AssistantController {
 
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chat(@RequestBody ChatRequest request) {
-        // 直接调用并返回 Flux，所有桥接代码都消失了！
         return assistant.chat("1234567890", request.getMessage());
     }
 }
