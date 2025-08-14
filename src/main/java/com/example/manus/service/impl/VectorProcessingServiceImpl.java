@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
 
@@ -128,11 +129,11 @@ public class VectorProcessingServiceImpl implements VectorProcessingService {
     private String storeEmbedding(TextSegment segment, String knowledgeBaseId, String chunkId, String userId) {
         try {
             // 添加元数据
-            segment = segment.toBuilder()
-                    .metadata("knowledge_base_id", knowledgeBaseId)
-                    .metadata("chunk_id", chunkId)
-                    .metadata("user_id", userId)
-                    .build();
+            HashMap<String, Object> metadata = new HashMap<>();
+            metadata.put("knowledge_base_id", knowledgeBaseId);
+            metadata.put("chunk_id", chunkId);
+            metadata.put("user_id", userId);
+            segment.metadata().putAll(metadata);
 
             // 存储到向量数据库
             String embeddingId = embeddingStore.add(embeddingModel.embed(segment).content(), segment);

@@ -66,10 +66,10 @@ public class KnowledgeSearchServiceImpl implements KnowledgeSearchService {
             var queryEmbedding = embeddingModel.embed(query).content();
 
             // 构建搜索请求
-            EmbeddingSearchRequest.Builder requestBuilder = EmbeddingSearchRequest.builder()
+            EmbeddingSearchRequest.EmbeddingSearchRequestBuilder requestBuilder = EmbeddingSearchRequest.builder()
                     .queryEmbedding(queryEmbedding)
                     .maxResults(maxResults)
-                    .minScore(0.3); // 最小相似度阈值
+                    .minScore(0.3);// 最小相似度阈值
 
             if (filter != null) {
                 requestBuilder.filter(filter);
