@@ -1,6 +1,5 @@
 package com.example.manus.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.manus.persistence.entity.ToolDefinition;
 import com.example.manus.persistence.entity.ToolUsageLog;
@@ -67,7 +66,7 @@ public class ToolManagementServiceImpl implements ToolManagementService {
     @Override
     public UserToolConfig updateUserToolConfig(String userId, String toolId, boolean enabled, String config) {
         UserToolConfig existingConfig = userToolConfigMapper.selectByUserIdAndToolId(userId, toolId);
-        
+
         if (existingConfig != null) {
             existingConfig.setEnabled(enabled);
             existingConfig.setConfig(config);
@@ -91,7 +90,7 @@ public class ToolManagementServiceImpl implements ToolManagementService {
     @Override
     public void initializeUserToolConfigs(String userId) {
         List<ToolDefinition> allTools = getEnabledTools();
-        
+
         for (ToolDefinition tool : allTools) {
             UserToolConfig existingConfig = userToolConfigMapper.selectByUserIdAndToolId(userId, tool.getId());
             if (existingConfig == null) {
@@ -121,7 +120,7 @@ public class ToolManagementServiceImpl implements ToolManagementService {
 
         // 检查用户是否有所需权限
         if (tool.getPermissionCode() != null) {
-            return permissionService.hasPermission(userId, tool.getPermissionCode());
+            return permissionService.hasPermission(userId);
         }
 
         return true;
@@ -134,7 +133,7 @@ public class ToolManagementServiceImpl implements ToolManagementService {
     }
 
     @Override
-    public void logToolUsage(String userId, String toolId, String conversationId, String inputParams, 
+    public void logToolUsage(String userId, String toolId, String conversationId, String inputParams,
                            String result, int status, long executionTime, String errorMessage) {
         ToolUsageLog log = new ToolUsageLog();
         log.setId(UUID.randomUUID().toString());
@@ -147,7 +146,7 @@ public class ToolManagementServiceImpl implements ToolManagementService {
         log.setExecutionTime(executionTime);
         log.setErrorMessage(errorMessage);
         log.setCreatedAt(LocalDateTime.now());
-        
+
         toolUsageLogMapper.insert(log);
     }
 }

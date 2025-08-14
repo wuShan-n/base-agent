@@ -75,10 +75,10 @@ public class AgentManagementServiceImpl implements AgentManagementService {
         agent.setUpdatedAt(LocalDateTime.now());
         agent.setStatus(AgentDefinition.Status.ENABLED);
         agentDefinitionMapper.insert(agent);
-        
+
         // 初始化Agent工具配置
         initializeAgentToolConfigs(agent.getId());
-        
+
         return agent;
     }
 
@@ -113,10 +113,10 @@ public class AgentManagementServiceImpl implements AgentManagementService {
     }
 
     @Override
-    public UserAgentConfig updateUserAgentConfig(String userId, String agentId, Boolean enabled, 
+    public UserAgentConfig updateUserAgentConfig(String userId, String agentId, Boolean enabled,
                                                String customName, String customPrompt, Boolean isFavorite) {
         UserAgentConfig config = userAgentConfigMapper.selectByUserAndAgent(userId, agentId);
-        
+
         if (config == null) {
             config = new UserAgentConfig();
             config.setUserId(userId);
@@ -137,14 +137,14 @@ public class AgentManagementServiceImpl implements AgentManagementService {
             config.setUpdatedAt(LocalDateTime.now());
             userAgentConfigMapper.updateById(config);
         }
-        
+
         return config;
     }
 
     @Override
     public void initializeUserAgentConfigs(String userId) {
         List<AgentDefinition> systemAgents = getSystemAgents();
-        
+
         for (AgentDefinition agent : systemAgents) {
             UserAgentConfig existingConfig = userAgentConfigMapper.selectByUserAndAgent(userId, agent.getId());
             if (existingConfig == null) {
@@ -183,7 +183,7 @@ public class AgentManagementServiceImpl implements AgentManagementService {
     @Override
     public AgentToolConfig updateAgentToolConfig(String agentId, String toolId, Boolean enabled, String config, Integer priority) {
         AgentToolConfig toolConfig = agentToolConfigMapper.selectByAgentAndTool(agentId, toolId);
-        
+
         if (toolConfig == null) {
             toolConfig = new AgentToolConfig();
             toolConfig.setAgentId(agentId);
@@ -201,7 +201,7 @@ public class AgentManagementServiceImpl implements AgentManagementService {
             toolConfig.setUpdatedAt(LocalDateTime.now());
             agentToolConfigMapper.updateById(toolConfig);
         }
-        
+
         return toolConfig;
     }
 
@@ -209,10 +209,10 @@ public class AgentManagementServiceImpl implements AgentManagementService {
     public void initializeAgentToolConfigs(String agentId) {
         AgentDefinition agent = getAgentById(agentId);
         if (agent == null) return;
-        
+
         List<ToolDefinition> availableTools = toolDefinitionMapper.selectEnabledTools();
         Map<String, Integer> toolPriorities = getDefaultToolPriorities(agent.getCode());
-        
+
         for (ToolDefinition tool : availableTools) {
             AgentToolConfig existingConfig = agentToolConfigMapper.selectByAgentAndTool(agentId, tool.getId());
             if (existingConfig == null) {
@@ -237,36 +237,36 @@ public class AgentManagementServiceImpl implements AgentManagementService {
         if (agent == null || agent.getStatus() != AgentDefinition.Status.ENABLED) {
             return false;
         }
-        
+
         // 系统Agent默认所有用户都可以访问
         if (agent.getIsSystemAgent()) {
             return true;
         }
-        
+
         // 检查是否是Agent创建者
         if (userId.equals(agent.getCreatedBy())) {
             return true;
         }
-        
+
         // 检查用户权限
-        return permissionService.hasPermission(userId, "AGENT:USE");
+        return permissionService.hasPermission(userId);
     }
 
     @Override
     public boolean canCreateAgent(String userId) {
-        return permissionService.hasPermission(userId, "AGENT:CREATE");
+        return permissionService.hasPermission(userId);
     }
 
     @Override
     public Map<String, Object> getAgentStatistics(String userId) {
         Map<String, Object> stats = new HashMap<>();
-        
+
         stats.put("totalAgents", agentDefinitionMapper.selectList(null).size());
         stats.put("enabledAgents", getEnabledAgents().size());
         stats.put("userEnabledAgents", userAgentConfigMapper.countEnabledByUserId(userId));
         stats.put("userFavoriteAgents", userAgentConfigMapper.countFavoritesByUserId(userId));
         stats.put("categories", getAgentCategories().size());
-        
+
         return stats;
     }
 
@@ -275,7 +275,7 @@ public class AgentManagementServiceImpl implements AgentManagementService {
         // 这里可以实现更复杂的统计逻辑
         // 目前返回基本的使用统计
         List<UserAgentConfig> configs = getUserEnabledAgents(userId);
-        
+
         return configs.stream()
             .map(config -> {
                 Map<String, Object> stat = new HashMap<>();
@@ -308,7 +308,7 @@ public class AgentManagementServiceImpl implements AgentManagementService {
 
     private Map<String, Integer> getDefaultToolPriorities(String agentCode) {
         Map<String, Integer> priorities = new HashMap<>();
-        
+
         switch (agentCode) {
             case "CODE_ASSISTANT":
                 priorities.put("TERMINAL", 1);
@@ -333,7 +333,7 @@ public class AgentManagementServiceImpl implements AgentManagementService {
                 priorities.put("TERMINAL", 5);
                 break;
         }
-        
+
         return priorities;
     }
 }

@@ -101,11 +101,6 @@ public class AgentFactory {
             throw new RuntimeException("Agent不存在或已禁用");
         }
 
-        // 检查用户是否有权访问该Agent
-        if (!agentManagementService.hasAgentAccess(userId, agentId)) {
-            throw new RuntimeException("用户无权访问该Agent");
-        }
-
         // 获取Agent的工具配置
         List<AgentToolConfig> toolConfigs = agentManagementService.getEnabledAgentTools(agentId);
         List<Object> agentTools = new ArrayList<>();
@@ -158,9 +153,7 @@ public class AgentFactory {
             throw new RuntimeException("Agent不存在或已禁用");
         }
 
-        if (!agentManagementService.hasAgentAccess(userId, agentId)) {
-            throw new RuntimeException("用户无权访问该Agent");
-        }
+
 
         // 获取Agent的工具配置
         List<AgentToolConfig> toolConfigs = agentManagementService.getEnabledAgentTools(agentId);

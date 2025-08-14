@@ -3,11 +3,9 @@ package com.example.manus.service.impl;
 import com.example.manus.persistence.mapper.UserMapper;
 import com.example.manus.service.PermissionService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -29,9 +27,9 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @Override
-    public boolean hasPermission(String userId, String permission) {
+    public boolean hasPermission(String userId) {
         List<String> permissions = getUserPermissions(userId);
-        return permissions != null && permissions.contains(permission);
+        return permissions.contains('1');
     }
 
     @Override

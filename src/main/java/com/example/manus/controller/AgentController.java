@@ -114,10 +114,6 @@ public class AgentController {
     public CommonResult<AgentDefinition> createAgent(@RequestBody AgentCreateRequest request) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
-            if (!agentManagementService.canCreateAgent(userId)) {
-                return CommonResult.failed("没有权限创建Agent");
-            }
 
             AgentDefinition agent = new AgentDefinition();
             agent.setCode(request.getCode());
@@ -147,17 +143,12 @@ public class AgentController {
             @RequestBody AgentCreateRequest request) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
+
             AgentDefinition existingAgent = agentManagementService.getAgentById(agentId);
             if (existingAgent == null) {
                 return CommonResult.failed("Agent不存在");
             }
 
-            // 只有创建者和管理员可以编辑
-            if (!userId.equals(existingAgent.getCreatedBy()) && 
-                !agentManagementService.canCreateAgent(userId)) {
-                return CommonResult.failed("没有权限编辑此Agent");
-            }
 
             existingAgent.setName(request.getName());
             existingAgent.setDisplayName(request.getDisplayName());
@@ -182,7 +173,7 @@ public class AgentController {
             @Parameter(description = "Agent ID") @PathVariable String agentId) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
+
             AgentDefinition agent = agentManagementService.getAgentById(agentId);
             if (agent == null) {
                 return CommonResult.failed("Agent不存在");
@@ -192,9 +183,6 @@ public class AgentController {
                 return CommonResult.failed("系统Agent不能删除");
             }
 
-            if (!userId.equals(agent.getCreatedBy()) && !agentManagementService.canCreateAgent(userId)) {
-                return CommonResult.failed("没有权限删除此Agent");
-            }
 
             agentManagementService.deleteAgent(agentId);
             return CommonResult.success(null, "Agent删除成功");
@@ -232,15 +220,11 @@ public class AgentController {
     public CommonResult<UserAgentConfig> updateMyAgentConfig(@RequestBody UserAgentConfigRequest request) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
-            if (!agentManagementService.hasAgentAccess(userId, request.getAgentId())) {
-                return CommonResult.failed("没有权限访问该Agent");
-            }
 
             UserAgentConfig config = agentManagementService.updateUserAgentConfig(
-                    userId, request.getAgentId(), request.getEnabled(), 
+                    userId, request.getAgentId(), request.getEnabled(),
                     request.getCustomName(), request.getCustomPrompt(), request.getIsFavorite());
-            
+
             return CommonResult.success(config, "Agent配置更新成功");
         } catch (Exception e) {
             return CommonResult.failed(e.getMessage());

@@ -8,7 +8,7 @@ public interface PermissionService {
 
     List<String> getUserRoles(String userId);
 
-    boolean hasPermission(String userId, String permission);
+    boolean hasPermission(String userId);
 
     boolean hasRole(String userId, String role);
 
