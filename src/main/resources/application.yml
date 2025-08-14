@@ -31,6 +31,14 @@ langchain4j:
       api-key:
       base-url:
       model-name:
+  reranker:
+    http:
+      url: http://127.0.0.1:8001/rerank
+
+# 应用配置
+app:
+  file:
+    upload-dir: ./uploads
 
 # Sa-Token配置
 sa-token:

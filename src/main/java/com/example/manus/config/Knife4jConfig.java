@@ -70,10 +70,26 @@ public class Knife4jConfig {
     }
 
     @Bean
+    public GroupedOpenApi knowledgeApi() {
+        return GroupedOpenApi.builder()
+                .group("知识库管理")
+                .pathsToMatch("/knowledge-bases/**")
+                .build();
+    }
+
+    @Bean
+    public GroupedOpenApi documentApi() {
+        return GroupedOpenApi.builder()
+                .group("文档管理")
+                .pathsToMatch("/documents/**")
+                .build();
+    }
+
+    @Bean
     public GroupedOpenApi assistantApi() {
         return GroupedOpenApi.builder()
                 .group("AI助手")
-                .pathsToMatch("/assistant/**", "/documents/**")
+                .pathsToMatch("/assistant/**")
                 .build();
     }
 }
