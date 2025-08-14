@@ -3,7 +3,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>RAG 应用流式测试页面</title>
+	<title>智能助手</title>
 	<style>
 		body {
 			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
@@ -15,6 +15,7 @@
 			justify-content: center;
 			align-items: flex-start;
 			gap: 20px;
+			flex-wrap: wrap;
 		}
 		.container {
 			background-color: #fff;
@@ -23,6 +24,9 @@
 			box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 			width: 100%;
 			max-width: 500px;
+			display: flex;
+			flex-direction: column;
+			gap: 15px;
 		}
 		h2 {
 			border-bottom: 2px solid #eef;
@@ -50,54 +54,42 @@
 			border-radius: 4px;
 			padding: 15px;
 			overflow-y: auto;
-			margin-bottom: 15px;
 			background-color: #f9f9f9;
 			display: flex;
 			flex-direction: column;
 		}
-		.chat-message {
-			margin-bottom: 15px;
-			padding: 10px 15px;
-			border-radius: 12px;
-			max-width: 85%;
-			word-wrap: break-word;
-			line-height: 1.5;
-		}
-		.user-message {
-			background-color: #007bff;
-			color: white;
-			align-self: flex-end;
-		}
-		.assistant-message {
-			background-color: #e9ecef;
-			color: #333;
-			align-self: flex-start;
-		}
-		.chat-input-area {
-			display: flex;
-			gap: 10px;
-		}
-		#chat-input {
-			flex-grow: 1;
-			padding: 10px;
-			border: 1px solid #ccc;
-			border-radius: 4px;
-			font-size: 16px;
-		}
+		.chat-message { margin-bottom: 15px; padding: 10px 15px; border-radius: 12px; max-width: 85%; word-wrap: break-word; line-height: 1.5; }
+		.user-message { background-color: #007bff; color: white; align-self: flex-end; }
+		.assistant-message { background-color: #e9ecef; color: #333; align-self: flex-start; }
+		.chat-input-area { display: flex; gap: 10px; }
+		#chat-input { flex-grow: 1; padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-size: 16px; }
+		.tool-selection, .session-controls { display: flex; flex-direction: column; gap: 10px; }
+		.tool-selection fieldset { border: 1px solid #ddd; border-radius: 4px; padding: 10px; }
+		.tool-selection legend { font-weight: bold; color: #555; }
+		.tool-selection label { display: block; }
 	</style>
 </head>
 <body>
 
-<div class="container" id="upload-container">
+<div class="container" id="controls-container">
+	<div class="session-controls">
+		<h2>会话控制</h2>
+		<button id="new-chat-button">开启新对话</button>
+	</div>
+	<div class="tool-selection">
+		<fieldset>
+			<legend>选择要启用的插件</legend>
+			<label><input type="checkbox" name="tool" value="calculatorTool"> 计算器</label>
+			<label><input type="checkbox" name="tool" value="webScraperTool"> 网页抓取</label>
+			<label><input type="checkbox" name="tool" value="terminalTool"> 终端 (只读)</label>
+			<label style="color: #888;"><input type="checkbox" checked disabled> 知识库 (默认启用)</label>
+		</fieldset>
+	</div>
 </div>
 
 <div class="container" id="chat-container">
 	<h2>与智能助手对话</h2>
-	<div id="chat-window">
-		<div class="chat-message assistant-message">
-			你好！请向我提问。
-		</div>
-	</div>
+	<div id="chat-window"></div>
 	<div class="chat-input-area">
 		<input type="text" id="chat-input" placeholder="输入您的问题...">
 		<button id="send-button">发送</button>
@@ -106,92 +98,114 @@
 
 <script>
 	document.addEventListener('DOMContentLoaded', function() {
+		// --- DOM Elements ---
 		const sendButton = document.getElementById('send-button');
 		const chatInput = document.getElementById('chat-input');
 		const chatWindow = document.getElementById('chat-window');
+		const newChatButton = document.getElementById('new-chat-button');
+		const toolCheckboxes = document.querySelectorAll('input[name="tool"]');
+		
+		// --- State Management ---
+		let conversationId = null;
+		
+		// --- Functions ---
+		const startNewChat = () => {
+			conversationId = crypto.randomUUID(); // Generate a new unique ID for the conversation
+			chatWindow.innerHTML = ''; // Clear the chat window
+			appendMessage('你好！一个全新的对话已开始。请问有什么可以帮您？', 'assistant-message');
+			console.log(`New chat started. Conversation ID: ${conversationId}`);
+		};
+		
+		const getSelectedTools = () => {
+			return Array.from(toolCheckboxes)
+					.filter(checkbox => checkbox.checked)
+					.map(checkbox => checkbox.value);
+		};
 		
 		const handleSendMessage = async () => {
 			const message = chatInput.value.trim();
 			if (!message) return;
 			
-			// 1. 在UI上显示用户消息并禁用输入
 			appendMessage(message, 'user-message');
 			const question = chatInput.value;
 			chatInput.value = '';
 			setChattingState(true);
 			
-			// 2. 为AI的回复创建一个新的消息占位符
 			const assistantMessageElement = createMessageElement('assistant-message');
 			
+			const requestBody = {
+				conversationId: conversationId,
+				message: question,
+				tools: getSelectedTools()
+			};
+			
 			try {
-				// 3. 发起POST请求以获取流式响应
 				const response = await fetch('/api/assistant/chat', {
 					method: 'POST',
 					headers: { 'Content-Type': 'application/json' },
-					body: JSON.stringify({ message: question }),
+					body: JSON.stringify(requestBody),
 				});
 				
 				if (!response.ok || !response.body) {
-					throw new Error(`请求失败，状态码: ${response.status}`);
+					throw new Error(`请求失败: ${response.status}`);
 				}
 				
 				const reader = response.body.getReader();
 				const decoder = new TextDecoder("utf-8");
 				
-				// 4. 循环读取和处理流数据
 				while (true) {
 					const { done, value } = await reader.read();
-					if (done) break; // 流结束
+					if (done) break;
 					
 					const chunk = decoder.decode(value, { stream: true });
-					// SSE数据块可能包含多个事件，需要按行解析
 					const lines = chunk.split('\n');
 					
 					for (const line of lines) {
-						// 只处理以 "data:" 开头的行
 						if (line.startsWith("data:")) {
 							const data = line.substring(5).trim();
-							// 核心：实时将token追加到AI消息框的textContent中
-							assistantMessageElement.textContent += data;
-							// 实时滚动到底部，确保用户能看到最新内容
+							if (data) {
+								assistantMessageElement.textContent += JSON.parse(`"${data}"`); // Safely parse potential escape sequences
+							}
 							chatWindow.scrollTop = chatWindow.scrollHeight;
 						}
 					}
 				}
 			} catch (error) {
-				assistantMessageElement.textContent = "抱歉，处理您的请求时发生了错误。";
+				assistantMessageElement.textContent = `抱歉，处理您的请求时发生了错误: ${error.message}`;
 				console.error("流式聊天失败:", error);
 			} finally {
-				// 5. 请求结束后，无论成功失败，都恢复UI状态
 				setChattingState(false);
 			}
 		};
 		
-		// --- 事件监听 ---
-		sendButton.addEventListener('click', handleSendMessage);
-		chatInput.addEventListener('keypress', (e) => {
-			if (e.key === 'Enter') handleSendMessage();
-		});
-		
-		// --- 辅助函数 ---
-		function setChattingState(isChatting) {
+		const setChattingState = (isChatting) => {
 			chatInput.disabled = isChatting;
 			sendButton.disabled = isChatting;
 			if (!isChatting) chatInput.focus();
-		}
+		};
 		
-		function createMessageElement(className) {
+		const createMessageElement = (className) => {
 			const messageElement = document.createElement('div');
 			messageElement.classList.add('chat-message', className);
 			chatWindow.appendChild(messageElement);
 			chatWindow.scrollTop = chatWindow.scrollHeight;
 			return messageElement;
-		}
+		};
 		
-		function appendMessage(text, className) {
+		const appendMessage = (text, className) => {
 			const messageElement = createMessageElement(className);
 			messageElement.textContent = text;
-		}
+		};
+		
+		// --- Event Listeners ---
+		sendButton.addEventListener('click', handleSendMessage);
+		chatInput.addEventListener('keypress', (e) => {
+			if (e.key === 'Enter') handleSendMessage();
+		});
+		newChatButton.addEventListener('click', startNewChat);
+		
+		// --- Initialisation ---
+		startNewChat(); // Start a new chat session when the page loads
 	});
 </script>
 

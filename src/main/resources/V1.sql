@@ -33,11 +33,9 @@ CREATE TABLE chat_messages
     created_at      TIMESTAMP         NOT NULL DEFAULT now()
 );
 
--- 第三步: 创建索引以优化查询性能
 CREATE INDEX ON chat_messages (conversation_id);
 
 
--- 第四步: 创建函数和触发器，以最标准的方式自动更新时间戳
 CREATE OR REPLACE FUNCTION update_conversation_updated_at()
     RETURNS TRIGGER AS
 $$
