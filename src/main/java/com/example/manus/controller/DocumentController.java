@@ -91,7 +91,7 @@ public class DocumentController {
         }
     }
 
-    @Operation(summary = "重新处理文档", description = "重新处理文档的向量化")
+   /* @Operation(summary = "重新处理文档", description = "重新处理文档的向量化")
     @PostMapping("/{id}/reprocess")
     public CommonResult<Void> reprocessDocument(@Parameter(description = "文档ID") @PathVariable String id) {
         try {
@@ -120,5 +120,5 @@ public class DocumentController {
         } catch (Exception e) {
             return CommonResult.failed(e.getMessage());
         }
-    }
+    }*/
 }

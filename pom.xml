@@ -97,6 +97,12 @@
             <version>1.38.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis</artifactId>
+            <version>1.38.0</version>
+        </dependency>
+
 
         <!-- Redis连接池 -->
         <dependency>

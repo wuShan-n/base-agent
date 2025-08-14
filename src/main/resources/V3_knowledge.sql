@@ -1,10 +1,8 @@
 -- 用户知识库管理系统数据库表结构
--- 清理旧表
-DROP TABLE IF EXISTS document_chunks, knowledge_documents, knowledge_bases CASCADE;
 
 -- 创建知识库表
 CREATE TABLE knowledge_bases (
-    id VARCHAR(255) PRIMARY KEY,
+    id  VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
     name VARCHAR(100) NOT NULL,
     description TEXT,
     user_id VARCHAR(255) NOT NULL REFERENCES users(id) ON DELETE CASCADE,
@@ -19,7 +17,7 @@ CREATE TABLE knowledge_bases (
 
 -- 创建知识库文档表
 CREATE TABLE knowledge_documents (
-    id VARCHAR(255) PRIMARY KEY,
+    id  VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
     knowledge_base_id VARCHAR(255) NOT NULL REFERENCES knowledge_bases(id) ON DELETE CASCADE,
     name VARCHAR(255) NOT NULL,
     original_name VARCHAR(255) NOT NULL,
@@ -36,7 +34,7 @@ CREATE TABLE knowledge_documents (
 
 -- 创建文档分片表
 CREATE TABLE document_chunks (
-    id VARCHAR(255) PRIMARY KEY,
+    id  VARCHAR(255) PRIMARY KEY DEFAULT gen_random_uuid(),
     document_id VARCHAR(255) NOT NULL REFERENCES knowledge_documents(id) ON DELETE CASCADE,
     knowledge_base_id VARCHAR(255) NOT NULL REFERENCES knowledge_bases(id) ON DELETE CASCADE,
     content TEXT NOT NULL,
@@ -47,34 +45,16 @@ CREATE TABLE document_chunks (
 );
 
 -- 修改现有的向量表，增加知识库关联
-ALTER TABLE document_embeddings ADD COLUMN knowledge_base_id VARCHAR(255);
-ALTER TABLE document_embeddings ADD COLUMN chunk_id VARCHAR(255);
-ALTER TABLE document_embeddings ADD COLUMN user_id VARCHAR(255);
+-- ALTER TABLE document_embeddings ADD COLUMN knowledge_base_id VARCHAR(255);
+-- ALTER TABLE document_embeddings ADD COLUMN chunk_id VARCHAR(255);
+-- ALTER TABLE document_embeddings ADD COLUMN user_id VARCHAR(255);
 
--- 创建索引
-CREATE INDEX idx_knowledge_bases_user_id ON knowledge_bases(user_id);
-CREATE INDEX idx_knowledge_bases_status ON knowledge_bases(status);
-CREATE INDEX idx_knowledge_bases_public ON knowledge_bases(is_public);
 
-CREATE INDEX idx_knowledge_documents_kb_id ON knowledge_documents(knowledge_base_id);
-CREATE INDEX idx_knowledge_documents_user_id ON knowledge_documents(user_id);
-CREATE INDEX idx_knowledge_documents_status ON knowledge_documents(process_status);
-
-CREATE INDEX idx_document_chunks_doc_id ON document_chunks(document_id);
-CREATE INDEX idx_document_chunks_kb_id ON document_chunks(knowledge_base_id);
-CREATE INDEX idx_document_chunks_embedding ON document_chunks(embedding_id);
-
-CREATE INDEX idx_document_embeddings_kb_id ON document_embeddings(knowledge_base_id);
-CREATE INDEX idx_document_embeddings_chunk_id ON document_embeddings(chunk_id);
-CREATE INDEX idx_document_embeddings_user_id ON document_embeddings(user_id);
-
--- 创建知识库统计触发器
+-- 创建用于更新知识库统计信息（文档数、总大小）的特定触发器
 CREATE OR REPLACE FUNCTION update_kb_stats()
-    RETURNS TRIGGER AS
-$$
+    RETURNS TRIGGER AS $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
-        -- 增加文档数量和大小
         UPDATE knowledge_bases
         SET document_count = document_count + 1,
             total_size = total_size + NEW.file_size,
@@ -82,7 +62,6 @@ BEGIN
         WHERE id = NEW.knowledge_base_id;
         RETURN NEW;
     ELSIF TG_OP = 'DELETE' THEN
-        -- 减少文档数量和大小
         UPDATE knowledge_bases
         SET document_count = document_count - 1,
             total_size = total_size - OLD.file_size,
@@ -94,43 +73,29 @@ BEGIN
 END;
 $$ LANGUAGE plpgsql;
 
+-- 将统计触发器绑定到文档表
 CREATE TRIGGER trigger_update_kb_stats
     AFTER INSERT OR DELETE ON knowledge_documents
     FOR EACH ROW
 EXECUTE FUNCTION update_kb_stats();
 
--- 创建知识库更新时间触发器
-CREATE OR REPLACE FUNCTION update_kb_updated_at()
-    RETURNS TRIGGER AS
-$$
-BEGIN
-    NEW.updated_at = now();
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
+-- 初始化知识库相关的权限数据
+INSERT INTO permissions (name, code, resource, action, description) VALUES
+    ('知识库管理', 'KNOWLEDGE_BASE_MANAGE', 'knowledge_base', '*', '知识库管理相关权限')
+ON CONFLICT (code) DO NOTHING;
 
-CREATE TRIGGER trigger_update_kb_updated_at
-    BEFORE UPDATE ON knowledge_bases
-    FOR EACH ROW
-EXECUTE FUNCTION update_kb_updated_at();
+-- 使用业务Code为角色分配权限，不再依赖硬编码ID
 
--- 创建文档更新时间触发器
-CREATE TRIGGER trigger_update_doc_updated_at
-    BEFORE UPDATE ON knowledge_documents
-    FOR EACH ROW
-EXECUTE FUNCTION update_kb_updated_at();
+-- 为 'SUPER_ADMIN' 角色分配知识库管理权限
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r, permissions p
+WHERE r.code = 'SUPER_ADMIN' AND p.code = 'KNOWLEDGE_BASE_MANAGE'
+ON CONFLICT (role_id, permission_id) DO NOTHING;
 
--- 初始化权限数据
-INSERT INTO permissions (id, name, code, resource, action, description) VALUES
-('6', '知识库管理', 'KNOWLEDGE_BASE_MANAGE', 'knowledge_base', '*', '知识库管理相关权限')
-ON CONFLICT (id) DO NOTHING;
-
--- 给超级管理员添加知识库权限
-INSERT INTO role_permissions (id, role_id, permission_id) VALUES
-('9', '1', '6')
-ON CONFLICT (id) DO NOTHING;
-
--- 给普通用户添加基础文档权限
-INSERT INTO role_permissions (id, role_id, permission_id) VALUES
-('11', '3', '5')
-ON CONFLICT (id) DO NOTHING;
+-- 为 'USER' 角色分配基础的文档管理权限 (根据原脚本逻辑保留)
+INSERT INTO role_permissions (role_id, permission_id)
+SELECT r.id, p.id
+FROM roles r, permissions p
+WHERE r.code = 'USER' AND p.code = 'DOCUMENT_MANAGE'
+ON CONFLICT (role_id, permission_id) DO NOTHING;

@@ -14,38 +14,18 @@ import java.util.concurrent.TimeUnit;
 public class PermissionServiceImpl implements PermissionService {
 
     private final UserMapper userMapper;
-    private final RedisTemplate<String, Object> redisTemplate;
 
-    private static final String USER_PERMISSIONS_KEY = "user:permissions:";
-    private static final String USER_ROLES_KEY = "user:roles:";
-    private static final long CACHE_EXPIRE_SECONDS = 3600; // 1小时缓存
 
     @Override
     @SuppressWarnings("unchecked")
     public List<String> getUserPermissions(String userId) {
-        String key = USER_PERMISSIONS_KEY + userId;
-        List<String> permissions = (List<String>) redisTemplate.opsForValue().get(key);
-        
-        if (permissions == null) {
-            permissions = userMapper.selectPermissionsByUserId(userId);
-            redisTemplate.opsForValue().set(key, permissions, CACHE_EXPIRE_SECONDS, TimeUnit.SECONDS);
-        }
-        
-        return permissions;
+        return userMapper.selectPermissionsByUserId(userId);
     }
 
     @Override
     @SuppressWarnings("unchecked")
     public List<String> getUserRoles(String userId) {
-        String key = USER_ROLES_KEY + userId;
-        List<String> roles = (List<String>) redisTemplate.opsForValue().get(key);
-        
-        if (roles == null) {
-            roles = userMapper.selectRolesByUserId(userId);
-            redisTemplate.opsForValue().set(key, roles, CACHE_EXPIRE_SECONDS, TimeUnit.SECONDS);
-        }
-        
-        return roles;
+        return userMapper.selectRolesByUserId(userId);
     }
 
     @Override
@@ -66,7 +46,7 @@ public class PermissionServiceImpl implements PermissionService {
         if (userPermissions == null) {
             return false;
         }
-        
+
         for (String permission : permissions) {
             if (userPermissions.contains(permission)) {
                 return true;
@@ -81,7 +61,7 @@ public class PermissionServiceImpl implements PermissionService {
         if (userRoles == null) {
             return false;
         }
-        
+
         for (String role : roles) {
             if (userRoles.contains(role)) {
                 return true;

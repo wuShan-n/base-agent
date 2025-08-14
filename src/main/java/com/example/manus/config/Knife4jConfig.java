@@ -29,7 +29,7 @@ public class Knife4jConfig {
                                 .url("https://www.apache.org/licenses/LICENSE-2.0.html")))
                 .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
                 .components(new Components()
-                        .addSecuritySchemes("Bearer Authentication", 
+                        .addSecuritySchemes("Bearer Authentication",
                                 new SecurityScheme()
                                         .type(SecurityScheme.Type.HTTP)
                                         .scheme("bearer")
@@ -37,59 +37,4 @@ public class Knife4jConfig {
                                         .description("请输入JWT Token，格式为: Bearer <token>")));
     }
 
-    @Bean
-    public GroupedOpenApi authApi() {
-        return GroupedOpenApi.builder()
-                .group("认证管理")
-                .pathsToMatch("/auth/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi userApi() {
-        return GroupedOpenApi.builder()
-                .group("用户管理")
-                .pathsToMatch("/users/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi roleApi() {
-        return GroupedOpenApi.builder()
-                .group("角色管理")
-                .pathsToMatch("/roles/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi permissionApi() {
-        return GroupedOpenApi.builder()
-                .group("权限管理")
-                .pathsToMatch("/permissions/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi knowledgeApi() {
-        return GroupedOpenApi.builder()
-                .group("知识库管理")
-                .pathsToMatch("/knowledge-bases/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi documentApi() {
-        return GroupedOpenApi.builder()
-                .group("文档管理")
-                .pathsToMatch("/documents/**")
-                .build();
-    }
-
-    @Bean
-    public GroupedOpenApi assistantApi() {
-        return GroupedOpenApi.builder()
-                .group("AI助手")
-                .pathsToMatch("/assistant/**")
-                .build();
-    }
 }

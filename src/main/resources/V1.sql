@@ -16,20 +16,4 @@ CREATE TABLE chat_messages
     created_at      TIMESTAMP         NOT NULL DEFAULT now()
 );
 
-CREATE INDEX ON chat_messages (conversation_id);
 
-
-CREATE OR REPLACE FUNCTION update_conversation_updated_at()
-    RETURNS TRIGGER AS
-$$
-BEGIN
-    UPDATE conversations SET updated_at = now() WHERE id = NEW.conversation_id;
-    RETURN NEW;
-END;
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trigger_update_conversation_timestamp
-    AFTER INSERT
-    ON chat_messages
-    FOR EACH ROW
-EXECUTE FUNCTION update_conversation_updated_at();
