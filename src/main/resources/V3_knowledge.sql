@@ -75,7 +75,7 @@ $$
 BEGIN
     IF TG_OP = 'INSERT' THEN
         -- 增加文档数量和大小
-        UPDATE knowledge_bases 
+        UPDATE knowledge_bases
         SET document_count = document_count + 1,
             total_size = total_size + NEW.file_size,
             last_updated = now()
@@ -83,7 +83,7 @@ BEGIN
         RETURN NEW;
     ELSIF TG_OP = 'DELETE' THEN
         -- 减少文档数量和大小
-        UPDATE knowledge_bases 
+        UPDATE knowledge_bases
         SET document_count = document_count - 1,
             total_size = total_size - OLD.file_size,
             last_updated = now()
@@ -122,17 +122,15 @@ EXECUTE FUNCTION update_kb_updated_at();
 
 -- 初始化权限数据
 INSERT INTO permissions (id, name, code, resource, action, description) VALUES
-('6', '知识库管理', 'KNOWLEDGE_BASE_MANAGE', 'knowledge_base', '*', '知识库管理相关权限'),
-('7', '文档管理', 'DOCUMENT_MANAGE', 'document', '*', '文档管理相关权限')
+('6', '知识库管理', 'KNOWLEDGE_BASE_MANAGE', 'knowledge_base', '*', '知识库管理相关权限')
 ON CONFLICT (id) DO NOTHING;
 
 -- 给超级管理员添加知识库权限
 INSERT INTO role_permissions (id, role_id, permission_id) VALUES
-('9', '1', '6'),
-('10', '1', '7')
+('9', '1', '6')
 ON CONFLICT (id) DO NOTHING;
 
 -- 给普通用户添加基础文档权限
 INSERT INTO role_permissions (id, role_id, permission_id) VALUES
-('11', '3', '7')
+('11', '3', '5')
 ON CONFLICT (id) DO NOTHING;
