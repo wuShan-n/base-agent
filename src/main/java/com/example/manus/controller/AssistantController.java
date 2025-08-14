@@ -18,9 +18,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AssistantController {
 
-    private final Assistant assistant;
 
-    // 注入改造后的 AgentFactory
     private final AgentFactory agentFactory;
 
     @Data
@@ -29,7 +27,6 @@ public class AssistantController {
         private String message;
         private List<String> tools;    // 从前端接收启用的工具列表
     }
-
 
 
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
