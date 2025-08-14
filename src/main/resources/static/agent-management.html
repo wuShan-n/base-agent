@@ -1,0 +1,1070 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI助手管理</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        .header {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .header h1 {
+            color: #1a1a1a;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header p { color: #666; }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #007AFF;
+            margin-bottom: 8px;
+        }
+        
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .controls {
+            background: white;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .controls-row {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+        
+        .controls input, .controls select {
+            padding: 10px 15px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .controls input:focus, .controls select:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+        
+        .btn {
+            background: #007AFF;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .btn:hover {
+            background: #0056CC;
+            transform: translateY(-1px);
+        }
+        
+        .btn-secondary {
+            background: #8E8E93;
+        }
+        
+        .btn-secondary:hover {
+            background: #6D6D70;
+        }
+        
+        .btn-danger {
+            background: #FF3B30;
+        }
+        
+        .btn-danger:hover {
+            background: #D70015;
+        }
+        
+        .btn-success {
+            background: #34C759;
+        }
+        
+        .btn-success:hover {
+            background: #248A3D;
+        }
+        
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 20px;
+        }
+        
+        .agent-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .agent-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+        }
+        
+        .agent-header {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        
+        .agent-info {
+            flex: 1;
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .agent-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, #007AFF, #5856D6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            flex-shrink: 0;
+        }
+        
+        .agent-details h3 {
+            margin-bottom: 4px;
+            color: #1a1a1a;
+            font-size: 1.1em;
+        }
+        
+        .agent-category {
+            background: #F2F2F7;
+            color: #007AFF;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8em;
+            font-weight: 500;
+            display: inline-block;
+        }
+        
+        .agent-actions {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            padding: 0;
+        }
+        
+        .agent-description {
+            color: #666;
+            font-size: 0.9em;
+            line-height: 1.5;
+            margin-bottom: 16px;
+        }
+        
+        .agent-features {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+        
+        .feature-tag {
+            background: #E5F4FD;
+            color: #007AFF;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.75em;
+            font-weight: 500;
+        }
+        
+        .agent-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid #F2F2F7;
+            font-size: 0.8em;
+            color: #8E8E93;
+        }
+        
+        .agent-enabled {
+            border-left: 4px solid #34C759;
+        }
+        
+        .agent-disabled {
+            border-left: 4px solid #8E8E93;
+            opacity: 0.7;
+        }
+        
+        .agent-favorite {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: #FF9F0A;
+            color: white;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
+        }
+        
+        .modal-content {
+            background-color: white;
+            margin: 50px auto;
+            padding: 0;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        
+        .modal-header {
+            padding: 24px;
+            border-bottom: 1px solid #F2F2F7;
+            background: #FAFAFA;
+        }
+        
+        .modal-header h2 {
+            margin: 0;
+            color: #1a1a1a;
+        }
+        
+        .modal-body {
+            padding: 24px;
+            max-height: 60vh;
+            overflow-y: auto;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+        
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e1e1;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+        
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #007AFF;
+        }
+        
+        .modal-footer {
+            padding: 20px 24px;
+            border-top: 1px solid #F2F2F7;
+            background: #FAFAFA;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+        
+        .close {
+            position: absolute;
+            right: 24px;
+            top: 24px;
+            color: #8E8E93;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: all 0.2s;
+        }
+        
+        .close:hover {
+            background: #F2F2F7;
+            color: #333;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #8E8E93;
+        }
+        
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 4px solid #F2F2F7;
+            border-top: 4px solid #007AFF;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 16px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+        
+        .message.success {
+            background: #E8F5E8;
+            color: #2D5A2D;
+            border: 1px solid #C3E6C3;
+        }
+        
+        .message.error {
+            background: #FFE6E6;
+            color: #C70025;
+            border: 1px solid #FFB3B3;
+        }
+        
+        .tabs {
+            display: flex;
+            background: #F2F2F7;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px 20px;
+            text-align: center;
+            cursor: pointer;
+            background: transparent;
+            border: none;
+            color: #8E8E93;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        
+        .tab.active {
+            background: white;
+            color: #007AFF;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+            
+            .agents-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .modal-content {
+                width: 95%;
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🤖 AI助手管理</h1>
+            <p>管理和配置您的AI助手，打造专属的智能助手团队</p>
+        </div>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="totalAgents">-</div>
+                <div class="stat-label">可用助手总数</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="enabledAgents">-</div>
+                <div class="stat-label">已启用助手</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="favoriteAgents">-</div>
+                <div class="stat-label">收藏助手</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="totalCategories">-</div>
+                <div class="stat-label">助手分类</div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('my-agents')">我的助手</button>
+                <button class="tab" onclick="switchTab('all-agents')">所有助手</button>
+                <button class="tab" onclick="switchTab('favorites')">收藏夹</button>
+            </div>
+            
+            <div class="controls-row">
+                <select id="categoryFilter">
+                    <option value="">所有分类</option>
+                </select>
+                <input type="text" id="searchInput" placeholder="搜索助手名称...">
+                <button class="btn" onclick="applyFilters()">
+                    🔍 搜索
+                </button>
+                <button class="btn btn-secondary" onclick="resetFilters()">
+                    🔄 重置
+                </button>
+                <button class="btn btn-success" onclick="openCreateModal()">
+                    ➕ 创建助手
+                </button>
+            </div>
+        </div>
+        
+        <div id="messageContainer"></div>
+        
+        <div id="loadingIndicator" class="loading">
+            <div class="loading-spinner"></div>
+            <p>正在加载助手数据...</p>
+        </div>
+        
+        <div id="agentsContainer" class="agents-grid"></div>
+    </div>
+
+    <!-- Agent配置模态框 -->
+    <div id="agentModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">助手配置</h2>
+                <span class="close" onclick="closeModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="agentForm">
+                    <input type="hidden" id="agentId" name="agentId">
+                    
+                    <div class="form-group">
+                        <label for="agentCode">助手代码:</label>
+                        <input type="text" id="agentCode" name="code" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agentName">助手名称:</label>
+                        <input type="text" id="agentName" name="name" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agentDisplayName">显示名称:</label>
+                        <input type="text" id="agentDisplayName" name="displayName" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agentCategory">分类:</label>
+                        <select id="agentCategory" name="category" required>
+                            <option value="general">通用</option>
+                            <option value="development">开发</option>
+                            <option value="creative">创意</option>
+                            <option value="analysis">分析</option>
+                            <option value="research">研究</option>
+                            <option value="support">客服</option>
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agentDescription">描述:</label>
+                        <textarea id="agentDescription" name="description" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agentSystemPrompt">系统提示词:</label>
+                        <textarea id="agentSystemPrompt" name="systemPrompt" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="agentAvatarUrl">头像URL (可选):</label>
+                        <input type="url" id="agentAvatarUrl" name="avatarUrl">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeModal()">取消</button>
+                <button type="button" class="btn" onclick="saveAgent()">保存</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 用户配置模态框 -->
+    <div id="configModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>个人配置</h2>
+                <span class="close" onclick="closeConfigModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="configForm">
+                    <input type="hidden" id="configAgentId">
+                    
+                    <div class="form-group">
+                        <label for="customName">自定义名称:</label>
+                        <input type="text" id="customName" placeholder="给这个助手起个昵称...">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="customPrompt">自定义提示词:</label>
+                        <textarea id="customPrompt" placeholder="自定义系统提示词，为助手添加个性化指令..."></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label>
+                            <input type="checkbox" id="isFavorite"> 添加到收藏夹
+                        </label>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeConfigModal()">取消</button>
+                <button type="button" class="btn" onclick="saveUserConfig()">保存配置</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let allAgents = [];
+        let userConfigs = [];
+        let categories = [];
+        let currentTab = 'my-agents';
+        
+        // 页面加载时初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            loadAgentData();
+        });
+        
+        // 加载助手数据
+        async function loadAgentData() {
+            try {
+                showLoading(true);
+                
+                const [agentsResponse, configsResponse, categoriesResponse] = await Promise.all([
+                    fetch('/agents/enabled'),
+                    fetch('/agents/my-config'),
+                    fetch('/agents/categories')
+                ]);
+                
+                if (!agentsResponse.ok || !configsResponse.ok || !categoriesResponse.ok) {
+                    throw new Error('加载数据失败');
+                }
+                
+                const agentsData = await agentsResponse.json();
+                const configsData = await configsResponse.json();
+                const categoriesData = await categoriesResponse.json();
+                
+                allAgents = agentsData.data || [];
+                userConfigs = configsData.data || [];
+                categories = categoriesData.data || [];
+                
+                updateStatistics();
+                populateFilters();
+                renderAgents();
+                
+            } catch (error) {
+                showMessage('加载数据失败: ' + error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+        
+        // 更新统计信息
+        function updateStatistics() {
+            document.getElementById('totalAgents').textContent = allAgents.length;
+            document.getElementById('enabledAgents').textContent = userConfigs.filter(c => c.enabled).length;
+            document.getElementById('favoriteAgents').textContent = userConfigs.filter(c => c.isFavorite).length;
+            document.getElementById('totalCategories').textContent = categories.length;
+        }
+        
+        // 填充筛选器
+        function populateFilters() {
+            const categoryFilter = document.getElementById('categoryFilter');
+            categoryFilter.innerHTML = '<option value="">所有分类</option>';
+            
+            categories.forEach(category => {
+                const option = document.createElement('option');
+                option.value = category;
+                option.textContent = getCategoryName(category);
+                categoryFilter.appendChild(option);
+            });
+        }
+        
+        // 获取分类中文名
+        function getCategoryName(category) {
+            const categoryNames = {
+                'general': '通用',
+                'development': '开发',
+                'creative': '创意',
+                'analysis': '分析',
+                'research': '研究',
+                'support': '客服'
+            };
+            return categoryNames[category] || category;
+        }
+        
+        // 渲染助手列表
+        function renderAgents() {
+            const container = document.getElementById('agentsContainer');
+            let agentsToShow = [];
+            
+            switch(currentTab) {
+                case 'my-agents':
+                    agentsToShow = allAgents.filter(agent => {
+                        const config = userConfigs.find(c => c.agentId === agent.id);
+                        return config && config.enabled;
+                    });
+                    break;
+                case 'favorites':
+                    agentsToShow = allAgents.filter(agent => {
+                        const config = userConfigs.find(c => c.agentId === agent.id);
+                        return config && config.isFavorite;
+                    });
+                    break;
+                default:
+                    agentsToShow = getFilteredAgents();
+            }
+            
+            if (agentsToShow.length === 0) {
+                container.innerHTML = '<div class="loading"><p>没有找到匹配的助手</p></div>';
+                return;
+            }
+            
+            container.innerHTML = agentsToShow.map(agent => {
+                const config = userConfigs.find(c => c.agentId === agent.id) || 
+                    { enabled: false, isFavorite: false, usageCount: 0 };
+                
+                return `
+                    <div class="agent-card ${config.enabled ? 'agent-enabled' : 'agent-disabled'}">
+                        ${config.isFavorite ? '<div class="agent-favorite">⭐</div>' : ''}
+                        
+                        <div class="agent-header">
+                            <div class="agent-info">
+                                <div class="agent-avatar">
+                                    ${getAgentIcon(agent.category)}
+                                </div>
+                                <div class="agent-details">
+                                    <h3>${config.customName || agent.displayName}</h3>
+                                    <div class="agent-category">${getCategoryName(agent.category)}</div>
+                                </div>
+                            </div>
+                            <div class="agent-actions">
+                                <button class="btn-icon btn" onclick="toggleAgentFavorite('${agent.id}')" title="收藏">
+                                    ${config.isFavorite ? '💖' : '🤍'}
+                                </button>
+                                <button class="btn-icon btn btn-secondary" onclick="openConfigModal('${agent.id}')" title="配置">
+                                    ⚙️
+                                </button>
+                                ${!agent.isSystemAgent ? `<button class="btn-icon btn btn-danger" onclick="deleteAgent('${agent.id}')" title="删除">🗑️</button>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div class="agent-description">
+                            ${agent.description || '暂无描述'}
+                        </div>
+                        
+                        <div class="agent-features">
+                            ${agent.isSystemAgent ? '<span class="feature-tag">系统助手</span>' : '<span class="feature-tag">自定义助手</span>'}
+                            <span class="feature-tag">${getCategoryName(agent.category)}</span>
+                        </div>
+                        
+                        <div class="agent-stats">
+                            <span>使用次数: ${config.usageCount || 0}</span>
+                            <label class="switch">
+                                <input type="checkbox" ${config.enabled ? 'checked' : ''} 
+                                       onchange="toggleAgent('${agent.id}', this.checked)">
+                                <span>启用</span>
+                            </label>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+        
+        // 获取助手图标
+        function getAgentIcon(category) {
+            const icons = {
+                'general': '🤖',
+                'development': '💻',
+                'creative': '🎨',
+                'analysis': '📊',
+                'research': '🔬',
+                'support': '🎧'
+            };
+            return icons[category] || '🤖';
+        }
+        
+        // 获取过滤后的助手
+        function getFilteredAgents() {
+            const categoryFilter = document.getElementById('categoryFilter').value;
+            const searchText = document.getElementById('searchInput').value.toLowerCase();
+            
+            return allAgents.filter(agent => {
+                if (categoryFilter && agent.category !== categoryFilter) {
+                    return false;
+                }
+                
+                if (searchText && !agent.displayName.toLowerCase().includes(searchText) &&
+                    !agent.description.toLowerCase().includes(searchText)) {
+                    return false;
+                }
+                
+                return true;
+            });
+        }
+        
+        // 切换标签页
+        function switchTab(tab) {
+            currentTab = tab;
+            
+            // 更新标签样式
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            renderAgents();
+        }
+        
+        // 切换助手启用状态
+        async function toggleAgent(agentId, enabled) {
+            try {
+                const response = await fetch('/agents/my-config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, enabled })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('更新失败');
+                }
+                
+                // 更新本地配置
+                let config = userConfigs.find(c => c.agentId === agentId);
+                if (config) {
+                    config.enabled = enabled;
+                } else {
+                    userConfigs.push({ agentId, enabled, isFavorite: false, usageCount: 0 });
+                }
+                
+                updateStatistics();
+                renderAgents();
+                showMessage('助手配置已更新', 'success');
+                
+            } catch (error) {
+                showMessage('更新助手配置失败: ' + error.message, 'error');
+                // 恢复原状态
+                event.target.checked = !enabled;
+            }
+        }
+        
+        // 切换助手收藏状态
+        async function toggleAgentFavorite(agentId) {
+            try {
+                let config = userConfigs.find(c => c.agentId === agentId);
+                const newFavorite = config ? !config.isFavorite : true;
+                
+                const response = await fetch('/agents/my-config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, isFavorite: newFavorite })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('更新失败');
+                }
+                
+                // 更新本地配置
+                if (config) {
+                    config.isFavorite = newFavorite;
+                } else {
+                    userConfigs.push({ agentId, enabled: true, isFavorite: newFavorite, usageCount: 0 });
+                }
+                
+                updateStatistics();
+                renderAgents();
+                showMessage(newFavorite ? '已添加到收藏' : '已取消收藏', 'success');
+                
+            } catch (error) {
+                showMessage('更新收藏状态失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 打开创建助手模态框
+        function openCreateModal() {
+            document.getElementById('modalTitle').textContent = '创建助手';
+            document.getElementById('agentForm').reset();
+            document.getElementById('agentId').value = '';
+            document.getElementById('agentModal').style.display = 'block';
+        }
+        
+        // 打开配置模态框
+        function openConfigModal(agentId) {
+            const agent = allAgents.find(a => a.id === agentId);
+            const config = userConfigs.find(c => c.agentId === agentId) || {};
+            
+            document.getElementById('configAgentId').value = agentId;
+            document.getElementById('customName').value = config.customName || '';
+            document.getElementById('customPrompt').value = config.customPrompt || '';
+            document.getElementById('isFavorite').checked = config.isFavorite || false;
+            
+            document.getElementById('configModal').style.display = 'block';
+        }
+        
+        // 关闭模态框
+        function closeModal() {
+            document.getElementById('agentModal').style.display = 'none';
+        }
+        
+        function closeConfigModal() {
+            document.getElementById('configModal').style.display = 'none';
+        }
+        
+        // 保存助手
+        async function saveAgent() {
+            try {
+                const formData = new FormData(document.getElementById('agentForm'));
+                const agentData = Object.fromEntries(formData.entries());
+                
+                const agentId = document.getElementById('agentId').value;
+                const isEdit = agentId !== '';
+                
+                const url = isEdit ? `/agents/${agentId}` : '/agents';
+                const method = isEdit ? 'PUT' : 'POST';
+                
+                const response = await fetch(url, {
+                    method: method,
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(agentData)
+                });
+                
+                if (!response.ok) {
+                    const error = await response.json();
+                    throw new Error(error.message || '保存失败');
+                }
+                
+                closeModal();
+                loadAgentData();
+                showMessage(isEdit ? '助手更新成功' : '助手创建成功', 'success');
+                
+            } catch (error) {
+                showMessage('保存助手失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 保存用户配置
+        async function saveUserConfig() {
+            try {
+                const agentId = document.getElementById('configAgentId').value;
+                const customName = document.getElementById('customName').value;
+                const customPrompt = document.getElementById('customPrompt').value;
+                const isFavorite = document.getElementById('isFavorite').checked;
+                
+                const response = await fetch('/agents/my-config', {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ agentId, customName, customPrompt, isFavorite })
+                });
+                
+                if (!response.ok) {
+                    throw new Error('保存失败');
+                }
+                
+                // 更新本地配置
+                let config = userConfigs.find(c => c.agentId === agentId);
+                if (config) {
+                    config.customName = customName;
+                    config.customPrompt = customPrompt;
+                    config.isFavorite = isFavorite;
+                } else {
+                    userConfigs.push({ agentId, enabled: true, customName, customPrompt, isFavorite, usageCount: 0 });
+                }
+                
+                closeConfigModal();
+                updateStatistics();
+                renderAgents();
+                showMessage('个人配置已保存', 'success');
+                
+            } catch (error) {
+                showMessage('保存配置失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 删除助手
+        async function deleteAgent(agentId) {
+            if (!confirm('确定要删除这个助手吗？此操作无法撤销。')) {
+                return;
+            }
+            
+            try {
+                const response = await fetch(`/agents/${agentId}`, {
+                    method: 'DELETE'
+                });
+                
+                if (!response.ok) {
+                    throw new Error('删除失败');
+                }
+                
+                loadAgentData();
+                showMessage('助手删除成功', 'success');
+                
+            } catch (error) {
+                showMessage('删除助手失败: ' + error.message, 'error');
+            }
+        }
+        
+        // 应用筛选
+        function applyFilters() {
+            renderAgents();
+        }
+        
+        // 重置筛选
+        function resetFilters() {
+            document.getElementById('categoryFilter').value = '';
+            document.getElementById('searchInput').value = '';
+            renderAgents();
+        }
+        
+        // 显示消息
+        function showMessage(message, type) {
+            const container = document.getElementById('messageContainer');
+            container.innerHTML = `<div class="message ${type}">${message}</div>`;
+            
+            setTimeout(() => {
+                container.innerHTML = '';
+            }, 5000);
+        }
+        
+        // 显示/隐藏加载指示器
+        function showLoading(show) {
+            const loading = document.getElementById('loadingIndicator');
+            const agents = document.getElementById('agentsContainer');
+            
+            if (show) {
+                loading.style.display = 'block';
+                agents.style.display = 'none';
+            } else {
+                loading.style.display = 'none';
+                agents.style.display = 'grid';
+            }
+        }
+        
+        // 搜索框实时搜索
+        document.getElementById('searchInput').addEventListener('input', function() {
+            clearTimeout(this.searchTimeout);
+            this.searchTimeout = setTimeout(() => {
+                renderAgents();
+            }, 300);
+        });
+        
+        // 点击模态框外部关闭
+        window.addEventListener('click', function(event) {
+            const agentModal = document.getElementById('agentModal');
+            const configModal = document.getElementById('configModal');
+            
+            if (event.target === agentModal) {
+                agentModal.style.display = 'none';
+            }
+            if (event.target === configModal) {
+                configModal.style.display = 'none';
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,5 +1,6 @@
 package com.example.manus.service.impl;
 
+import cn.dev33.satoken.secure.BCrypt;
 import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.example.manus.dto.LoginRequest;
@@ -9,7 +10,6 @@ import com.example.manus.persistence.entity.User;
 import com.example.manus.persistence.mapper.UserMapper;
 import com.example.manus.service.AuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 
@@ -22,7 +22,6 @@ import java.util.UUID;
 public class AuthServiceImpl implements AuthService {
 
     private final UserMapper userMapper;
-    private final BCryptPasswordEncoder passwordEncoder;
 
     @Override
     public LoginResponse login(LoginRequest request) {
@@ -34,9 +33,8 @@ public class AuthServiceImpl implements AuthService {
         if (user == null) {
             throw new RuntimeException("用户不存在");
         }
-
         // 验证密码
-        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+        if (!BCrypt.checkpw(request.getPassword(), user.getPassword())) {
             throw new RuntimeException("密码错误");
         }
 
@@ -86,7 +84,7 @@ public class AuthServiceImpl implements AuthService {
         User user = new User();
         user.setId(UUID.randomUUID().toString());
         user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setPassword(BCrypt.hashpw(request.getPassword()));
         user.setEmail(request.getEmail());
         user.setNickname(StringUtils.hasText(request.getNickname()) ? request.getNickname() : request.getUsername());
         user.setStatus(1);
