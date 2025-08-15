@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Tag(name = "权限管理", description = "系统权限管理相关接口")
+//@Tag(name = "权限管理", description = "系统权限管理相关接口")
 @RestController
 @RequestMapping("/permissions")
 @RequiredArgsConstructor
@@ -34,10 +34,10 @@ public class PermissionController {
             @Parameter(description = "权限代码模糊查询") @RequestParam(required = false) String code,
             @Parameter(description = "资源模糊查询") @RequestParam(required = false) String resource,
             @Parameter(description = "权限状态(0:禁用 1:启用)") @RequestParam(required = false) Integer status) {
-        
+
         Page<Permission> page = new Page<>(current, size);
         LambdaQueryWrapper<Permission> wrapper = new LambdaQueryWrapper<>();
-        
+
         if (StringUtils.hasText(name)) {
             wrapper.like(Permission::getName, name);
         }
@@ -50,10 +50,10 @@ public class PermissionController {
         if (status != null) {
             wrapper.eq(Permission::getStatus, status);
         }
-        
+
         wrapper.orderByDesc(Permission::getCreatedAt);
         Page<Permission> result = permissionMapper.selectPage(page, wrapper);
-        
+
         return CommonResult.success(result);
     }
 
@@ -96,7 +96,7 @@ public class PermissionController {
     @PutMapping("/{id}")
     @SaCheckPermission("PERMISSION_MANAGE")
     public CommonResult<Void> updatePermission(
-            @Parameter(description = "权限ID") @PathVariable String id, 
+            @Parameter(description = "权限ID") @PathVariable String id,
             @Parameter(description = "权限信息") @RequestBody Permission permission) {
         Permission existPermission = permissionMapper.selectById(id);
         if (existPermission == null) {

@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
-@Tag(name = "角色管理", description = "系统角色管理相关接口")
+//@Tag(name = "角色管理", description = "系统角色管理相关接口")
 @RestController
 @RequestMapping("/roles")
 @RequiredArgsConstructor
@@ -33,10 +33,10 @@ public class RoleController {
             @Parameter(description = "角色名模糊查询") @RequestParam(required = false) String name,
             @Parameter(description = "角色代码模糊查询") @RequestParam(required = false) String code,
             @Parameter(description = "角色状态(0:禁用 1:启用)") @RequestParam(required = false) Integer status) {
-        
+
         Page<Role> page = new Page<>(current, size);
         LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
-        
+
         if (StringUtils.hasText(name)) {
             wrapper.like(Role::getName, name);
         }
@@ -46,10 +46,10 @@ public class RoleController {
         if (status != null) {
             wrapper.eq(Role::getStatus, status);
         }
-        
+
         wrapper.orderByDesc(Role::getCreatedAt);
         Page<Role> result = roleMapper.selectPage(page, wrapper);
-        
+
         return CommonResult.success(result);
     }
 
@@ -92,7 +92,7 @@ public class RoleController {
     @PutMapping("/{id}")
     @SaCheckPermission("ROLE_MANAGE")
     public CommonResult<Void> updateRole(
-            @Parameter(description = "角色ID") @PathVariable String id, 
+            @Parameter(description = "角色ID") @PathVariable String id,
             @Parameter(description = "角色信息") @RequestBody Role role) {
         Role existRole = roleMapper.selectById(id);
         if (existRole == null) {

@@ -12,7 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "认证管理", description = "用户登录、注册、登出等认证相关接口")
+//@Tag(name = "认证管理", description = "用户登录、注册、登出等认证相关接口")
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor

@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "Agent管理", description = "AI助手管理相关接口")
+//@Tag(name = "Agent管理", description = "AI助手管理相关接口")
 @RestController
 @RequestMapping("/agents")
 @RequiredArgsConstructor

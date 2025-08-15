@@ -16,7 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
-@Tag(name = "文档管理", description = "知识库文档管理相关接口")
+//@Tag(name = "文档管理", description = "知识库文档管理相关接口")
 @RestController
 @RequestMapping("/documents")
 @RequiredArgsConstructor

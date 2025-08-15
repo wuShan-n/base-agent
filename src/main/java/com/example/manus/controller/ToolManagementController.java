@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "工具管理", description = "AI工具管理相关接口")
+//@Tag(name = "工具管理", description = "AI工具管理相关接口")
 @RestController
 @RequestMapping("/tools")
 @RequiredArgsConstructor
@@ -108,21 +108,21 @@ public class ToolManagementController {
     public CommonResult<UserToolConfig> updateToolConfig(@RequestBody UserToolConfigRequest request) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
+
             // 检查工具权限
             ToolDefinition tool = toolManagementService.getAllTools().stream()
                     .filter(t -> t.getId().equals(request.getToolId()))
                     .findFirst()
                     .orElse(null);
-                    
+
             if (tool == null) {
                 return CommonResult.failed("工具不存在");
             }
-            
+
             if (!toolManagementService.hasToolPermission(userId, tool.getCode())) {
                 return CommonResult.failed("没有权限使用此工具");
             }
-            
+
             UserToolConfig config = toolManagementService.updateUserToolConfig(
                     userId, request.getToolId(), request.getEnabled(), request.getConfig());
             return CommonResult.success(config, "工具配置更新成功");
@@ -136,19 +136,19 @@ public class ToolManagementController {
     public CommonResult<Void> batchUpdateToolConfig(@RequestBody List<UserToolConfigRequest> requests) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
+
             for (UserToolConfigRequest request : requests) {
                 ToolDefinition tool = toolManagementService.getAllTools().stream()
                         .filter(t -> t.getId().equals(request.getToolId()))
                         .findFirst()
                         .orElse(null);
-                        
+
                 if (tool != null && toolManagementService.hasToolPermission(userId, tool.getCode())) {
                     toolManagementService.updateUserToolConfig(
                             userId, request.getToolId(), request.getEnabled(), request.getConfig());
                 }
             }
-            
+
             return CommonResult.success(null, "批量更新成功");
         } catch (Exception e) {
             return CommonResult.failed(e.getMessage());

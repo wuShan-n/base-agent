@@ -13,7 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "用户管理", description = "用户信息管理相关接口")
+//@Tag(name = "用户管理", description = "用户信息管理相关接口")
 @RestController
 @RequestMapping("/users")
 @RequiredArgsConstructor
@@ -30,10 +30,10 @@ public class UserController {
             @Parameter(description = "用户名模糊查询") @RequestParam(required = false) String username,
             @Parameter(description = "昵称模糊查询") @RequestParam(required = false) String nickname,
             @Parameter(description = "用户状态(0:禁用 1:启用)") @RequestParam(required = false) Integer status) {
-        
+
         Page<User> page = new Page<>(current, size);
         LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
-        
+
         if (StringUtils.hasText(username)) {
             wrapper.like(User::getUsername, username);
         }
@@ -43,13 +43,13 @@ public class UserController {
         if (status != null) {
             wrapper.eq(User::getStatus, status);
         }
-        
+
         wrapper.orderByDesc(User::getCreatedAt);
         Page<User> result = userMapper.selectPage(page, wrapper);
-        
+
         // 不返回密码
         result.getRecords().forEach(user -> user.setPassword(null));
-        
+
         return CommonResult.success(result);
     }
 
@@ -70,12 +70,12 @@ public class UserController {
     @PutMapping("/{id}/status")
     @SaCheckPermission("USER_MANAGE")
     public CommonResult<Void> updateUserStatus(
-            @Parameter(description = "用户ID") @PathVariable String id, 
+            @Parameter(description = "用户ID") @PathVariable String id,
             @Parameter(description = "用户状态(0:禁用 1:启用)") @RequestParam Integer status) {
         User user = new User();
         user.setId(id);
         user.setStatus(status);
-        
+
         int result = userMapper.updateById(user);
         if (result > 0) {
             return CommonResult.success(null, "更新成功");

@@ -18,7 +18,7 @@ import reactor.core.publisher.Flux;
 
 import java.util.List;
 
-@Tag(name = "AI助手", description = "AI对话助手相关接口")
+//@Tag(name = "AI助手", description = "AI对话助手相关接口")
 @RestController
 @RequestMapping("/assistant")
 @RequiredArgsConstructor
@@ -36,7 +36,7 @@ public class AssistantController {
 
         try {
             Assistant assistant;
-            
+
             // 优先检查是否指定了Agent
             if (request.getAgentId() != null && !request.getAgentId().isEmpty()) {
                 assistant = agentFactory.createAssistantByAgent(userId, request.getAgentId());
@@ -51,7 +51,7 @@ public class AssistantController {
             }
 
             return assistant.chat(request.getConversationId(), request.getMessage());
-            
+
         } catch (Exception e) {
             return Flux.error(new RuntimeException("对话失败: " + e.getMessage()));
         }

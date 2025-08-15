@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "知识库管理", description = "用户知识库管理相关接口")
+//@Tag(name = "知识库管理", description = "用户知识库管理相关接口")
 @RestController
 @RequestMapping("/knowledge-bases")
 @RequiredArgsConstructor

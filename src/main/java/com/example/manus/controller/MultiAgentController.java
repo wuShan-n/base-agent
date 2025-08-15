@@ -22,7 +22,7 @@ import reactor.core.publisher.Flux;
 import java.util.List;
 import java.util.Map;
 
-@Tag(name = "多Agent系统", description = "多Agent对话和协作相关接口")
+//@Tag(name = "多Agent系统", description = "多Agent对话和协作相关接口")
 @RestController
 @RequestMapping("/multi-agents")
 @RequiredArgsConstructor
@@ -65,10 +65,10 @@ public class MultiAgentController {
     @PostMapping(value = "/chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> chatWithAgent(@RequestBody MultiAgentChatRequest request) {
         String userId = StpUtil.getLoginIdAsString();
-        
+
         try {
             Assistant assistant;
-            
+
             if (request.getAgentId() != null) {
                 // 使用指定的Agent ID
                 if (request.getCustomPrompt() != null && !request.getCustomPrompt().isEmpty()) {
@@ -90,11 +90,11 @@ public class MultiAgentController {
             }
 
             // 如果提供了sessionId，在会话上下文中进行对话
-            String conversationId = request.getSessionId() != null ? 
+            String conversationId = request.getSessionId() != null ?
                 "session_" + request.getSessionId() : request.getConversationId();
 
             return assistant.chat(conversationId, request.getMessage());
-            
+
         } catch (Exception e) {
             return Flux.error(new RuntimeException("对话失败: " + e.getMessage()));
         }
@@ -104,7 +104,7 @@ public class MultiAgentController {
     @PostMapping(value = "/collaboration-chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
     public Flux<String> collaborationChat(@RequestBody MultiAgentChatRequest request) {
         String userId = StpUtil.getLoginIdAsString();
-        
+
         if (request.getCollaborationAgents() == null || request.getCollaborationAgents().isEmpty()) {
             return Flux.error(new RuntimeException("请指定协作Agent列表"));
         }
@@ -112,14 +112,14 @@ public class MultiAgentController {
         try {
             String primaryAgentId = request.getCollaborationAgents().get(0);
             List<String> collaborationAgentIds = request.getCollaborationAgents().subList(1, request.getCollaborationAgents().size());
-            
+
             Assistant assistant = agentFactory.createCollaborationAssistant(userId, primaryAgentId, collaborationAgentIds);
-            
-            String conversationId = request.getSessionId() != null ? 
+
+            String conversationId = request.getSessionId() != null ?
                 "collaboration_" + request.getSessionId() : request.getConversationId();
-                
+
             return assistant.chat(conversationId, request.getMessage());
-            
+
         } catch (Exception e) {
             return Flux.error(new RuntimeException("协作对话失败: " + e.getMessage()));
         }
@@ -132,14 +132,14 @@ public class MultiAgentController {
     public CommonResult<AgentSession> createSession(@RequestBody SessionCreateRequest request) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
+
             if (!agentSessionService.canCreateSession(userId)) {
                 return CommonResult.failed("已达到最大会话数限制");
             }
 
             AgentSession session = agentSessionService.createSession(
                 userId, request.getSessionName(), request.getAgentId(), request.getSessionType());
-            
+
             return CommonResult.success(session, "会话创建成功");
         } catch (Exception e) {
             return CommonResult.failed(e.getMessage());
@@ -193,7 +193,7 @@ public class MultiAgentController {
             @Parameter(description = "新Agent ID") @RequestParam String agentId) {
         try {
             String userId = StpUtil.getLoginIdAsString();
-            
+
             if (!agentManagementService.hasAgentAccess(userId, agentId)) {
                 return CommonResult.failed("没有权限访问该Agent");
             }
@@ -260,9 +260,9 @@ public class MultiAgentController {
     public CommonResult<AgentCollaboration> initiateCollaboration(@RequestBody CollaborationRequest request) {
         try {
             AgentCollaboration collaboration = agentSessionService.initiateCollaboration(
-                request.getSessionId(), request.getInitiatorAgentId(), 
+                request.getSessionId(), request.getInitiatorAgentId(),
                 request.getTargetAgentId(), request.getTaskType(), request.getTaskDescription());
-            
+
             return CommonResult.success(collaboration, "协作任务已发起");
         } catch (Exception e) {
             return CommonResult.failed(e.getMessage());
