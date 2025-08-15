@@ -56,12 +56,12 @@ public class AssistantController {
             return Flux.error(new RuntimeException("对话失败: " + e.getMessage()));
         }
     }
-
-    @Operation(summary = "快速对话", description = "使用用户默认工具配置进行对话")
-    @PostMapping(value = "/quick-chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public Flux<String> quickChat(@RequestBody ChatRequest request) {
-        String userId = StpUtil.getLoginIdAsString();
-        Assistant assistant = agentFactory.createUserAssistant(userId);
-        return assistant.chat(request.getConversationId(), request.getMessage());
-    }
+//
+//    @Operation(summary = "快速对话", description = "使用用户默认工具配置进行对话")
+//    @PostMapping(value = "/quick-chat", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
+//    public Flux<String> quickChat(@RequestBody ChatRequest request) {
+//        String userId = StpUtil.getLoginIdAsString();
+//        Assistant assistant = agentFactory.createUserAssistant(userId);
+//        return assistant.chat(request.getConversationId(), request.getMessage());
+//    }
 }

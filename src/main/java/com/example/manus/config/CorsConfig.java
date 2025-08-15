@@ -6,22 +6,24 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.reactive.CorsWebFilter;
 import org.springframework.web.cors.reactive.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import org.springframework.web.util.pattern.PathPatternParser;
 
 @Configuration
 public class CorsConfig {
 
     @Bean
-    public CorsWebFilter corsFilter() {
-        CorsConfiguration config = new CorsConfiguration();
-        config.addAllowedMethod("*"); // 允许所有HTTP方法
-        config.addAllowedOriginPattern("*"); // 允许所有来源
-        config.addAllowedHeader("*"); // 允许所有请求头
-        config.setAllowCredentials(true); // 允许携带凭证（如Cookie）
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource(new PathPatternParser());
-        source.registerCorsConfiguration("/**", config); // 对所有路径应用此配置
-
-        return new CorsWebFilter(source);
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**") // 对所有接口生效
+                        .allowedOrigins("http://localhost:5173") // 允许的源
+                        .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // 允许的方法
+                        .allowedHeaders("*") // 允许的请求头
+                        .allowCredentials(true); // 是否允许携带 cookie
+            }
+        };
     }
 }
